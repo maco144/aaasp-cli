@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 (2026-07-12)
+
+- `aaasp deployments create <agent_def_id>` — `POST /v1/deployments`
+- `aaasp runs create <deployment_id> [prompt...] [--sync]` — `POST /v1/runs`;
+  `--sync` waits for a terminal result instead of returning immediately
+- Both verified end-to-end against a live AAASP dev server
+
 ## 0.2.0 (2026-07-12)
 
 - `aaasp mcp serve` — MCP (Model Context Protocol) server over stdio, exposing

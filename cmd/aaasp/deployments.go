@@ -20,6 +20,11 @@ func cmdDeployments(args []string) {
 	switch sub {
 	case "list", "ls":
 		deploymentslist(client)
+	case "create":
+		if len(args) == 0 {
+			output.Fatal("usage: aaasp deployments create <agent_def_id>")
+		}
+		deploymentCreate(client, args[0])
 	case "show", "get":
 		if len(args) == 0 {
 			output.Fatal("usage: aaasp deployments show <id>")
@@ -33,6 +38,25 @@ func cmdDeployments(args []string) {
 	default:
 		output.Fatal("unknown subcommand: %s", sub)
 	}
+}
+
+func deploymentCreate(client *api.Client, agentDefID string) {
+	body := map[string]string{"agent_def_id": agentDefID}
+
+	var result map[string]any
+	if err := client.Post("/deployments", body, &result); err != nil {
+		output.Fatal("%v", err)
+	}
+	if output.IsJSON() {
+		output.JSON(result)
+		return
+	}
+
+	fmt.Printf("Created deployment %s\n", str(result["id"]))
+	output.KV([][2]string{
+		{"agent_def_id", str(result["agent_def_id"])},
+		{"status", str(result["status"])},
+	})
 }
 
 func deploymentslist(client *api.Client) {

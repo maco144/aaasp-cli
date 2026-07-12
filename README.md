@@ -37,34 +37,35 @@ No API key yet? Run `aaasp register` to create an account.
 aaasp <command> [subcommand] [flags]
 
 Commands:
-  register              Create a new account
-  whoami                Show current account info
+  register                            Create a new account
+  whoami                              Show current account info
 
-  deployments list      List deployments
-  deployments delete    Delete a deployment
+  deployments list                    List deployments
+  deployments create <agent_def_id>   Create a deployment
+  deployments delete <id>             Delete a deployment
 
-  runs list             List runs
-  runs show <id>        Show run details
-  runs cancel <id>      Cancel a run
+  runs list                                        List runs
+  runs create <deployment_id> [prompt...] [--sync]  Trigger a run
+  runs show <id>                                   Show run details
+  runs cancel <id>                                 Cancel a run
 
   credentials list      List stored credentials
   credentials add       Add a credential
   credentials delete    Delete a credential
 
-  skills list           List available skills
+  skills list            List available skills
 
-  mcp serve             Run an MCP server over stdio (dispatch_run, get_run,
-                         list_deployments, list_agents) for MCP clients like
-                         Claude Desktop or Claude Code
+  mcp serve              Run an MCP server over stdio (dispatch_run, get_run,
+                          list_deployments, list_agents) for MCP clients like
+                          Claude Desktop or Claude Code
 
 Flags:
-  --json                Output raw JSON
+  --json                 Output raw JSON
 ```
 
-There is currently no CLI command to create a deployment or run directly (`POST
-/v1/deployments` and `/v1/runs` exist in the API but have no CLI surface yet) —
-use `mcp serve`'s `dispatch_run` tool, or call the JSON API directly, to submit
-a goal without needing a deployment ID up front.
+`runs create` submits directly against a known deployment; `mcp serve`'s
+`dispatch_run` tool (or `POST /v1/dispatch`) is the alternative when you want
+AAASP to auto-route the goal instead of naming a deployment yourself.
 
 ---
 

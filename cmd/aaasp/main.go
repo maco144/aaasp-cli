@@ -8,7 +8,7 @@ import (
 	"github.com/maco144/aaasp-cli/internal/output"
 )
 
-const version = "0.2.0"
+const version = "0.3.0"
 
 func main() {
 	args := os.Args[1:]
@@ -76,31 +76,35 @@ Usage:
   aaasp <command> [subcommand] [flags]
 
 Commands:
-  register              Create a new account
-  whoami                Show current account info
+  register                     Create a new account
+  whoami                       Show current account info
 
-  deployments list      List deployments
-  deployments delete    Delete a deployment
+  deployments list             List deployments
+  deployments create <agent_def_id>
+                                Create a deployment
+  deployments delete <id>      Delete a deployment
 
-  runs list             List runs
-  runs show <id>        Show run details
-  runs cancel <id>      Cancel a run
+  runs list                    List runs
+  runs create <deployment_id> [prompt...] [--sync]
+                                Trigger a run (--sync waits for the result)
+  runs show <id>               Show run details
+  runs cancel <id>             Cancel a run
 
-  credentials list      List stored credentials
-  credentials add       Add a credential
-  credentials delete    Delete a credential
+  credentials list             List stored credentials
+  credentials add              Add a credential
+  credentials delete           Delete a credential
 
-  skills list           List available skills
+  skills list                  List available skills
 
-  mcp serve             Run an MCP server over stdio (dispatch_run, get_run,
-                         list_deployments, list_agents) for MCP clients like
-                         Claude Desktop or Claude Code
+  mcp serve                    Run an MCP server over stdio (dispatch_run,
+                                get_run, list_deployments, list_agents) for
+                                MCP clients like Claude Desktop or Claude Code
 
 Flags:
-  --json                Output raw JSON
+  --json                       Output raw JSON
 
 Environment:
-  AAASP_API_KEY         API key (required for most commands)
-  AAASP_BASE_URL        Override API base URL (default: https://aaasp.ai)
+  AAASP_API_KEY                API key (required for most commands)
+  AAASP_BASE_URL               Override API base URL (default: https://aaasp.ai)
 `)
 }
