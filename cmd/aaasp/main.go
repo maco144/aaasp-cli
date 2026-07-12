@@ -8,7 +8,7 @@ import (
 	"github.com/maco144/aaasp-cli/internal/output"
 )
 
-const version = "0.1.0"
+const version = "0.2.0"
 
 func main() {
 	args := os.Args[1:]
@@ -45,6 +45,8 @@ func main() {
 		cmdCredentials(rest)
 	case "skills", "skill":
 		cmdSkills(rest)
+	case "mcp":
+		cmdMcp(rest)
 	case "version", "--version", "-v":
 		fmt.Println(version)
 	case "help", "--help", "-h":
@@ -78,12 +80,10 @@ Commands:
   whoami                Show current account info
 
   deployments list      List deployments
-  deployments create    Create a deployment
   deployments delete    Delete a deployment
 
   runs list             List runs
   runs show <id>        Show run details
-  runs create           Trigger a run
   runs cancel <id>      Cancel a run
 
   credentials list      List stored credentials
@@ -91,6 +91,10 @@ Commands:
   credentials delete    Delete a credential
 
   skills list           List available skills
+
+  mcp serve             Run an MCP server over stdio (dispatch_run, get_run,
+                         list_deployments, list_agents) for MCP clients like
+                         Claude Desktop or Claude Code
 
 Flags:
   --json                Output raw JSON

@@ -41,12 +41,10 @@ Commands:
   whoami                Show current account info
 
   deployments list      List deployments
-  deployments create    Create a deployment
   deployments delete    Delete a deployment
 
   runs list             List runs
   runs show <id>        Show run details
-  runs create           Trigger a run
   runs cancel <id>      Cancel a run
 
   credentials list      List stored credentials
@@ -55,9 +53,49 @@ Commands:
 
   skills list           List available skills
 
+  mcp serve             Run an MCP server over stdio (dispatch_run, get_run,
+                         list_deployments, list_agents) for MCP clients like
+                         Claude Desktop or Claude Code
+
 Flags:
   --json                Output raw JSON
 ```
+
+There is currently no CLI command to create a deployment or run directly (`POST
+/v1/deployments` and `/v1/runs` exist in the API but have no CLI surface yet) —
+use `mcp serve`'s `dispatch_run` tool, or call the JSON API directly, to submit
+a goal without needing a deployment ID up front.
+
+---
+
+## MCP server
+
+`aaasp mcp serve` runs an MCP (Model Context Protocol) server over stdio, exposing
+the AAASP core loop as tools for any MCP client:
+
+| Tool | Description |
+|------|-------------|
+| `dispatch_run` | Submit a goal — AAASP classifies it and auto-routes to the best agent |
+| `get_run` | Check a run's status and result by ID |
+| `list_deployments` | List agent deployments for the authenticated tenant |
+| `list_agents` | List agent definitions for the authenticated tenant |
+
+Example Claude Desktop / Claude Code config:
+
+```json
+{
+  "mcpServers": {
+    "aaasp": {
+      "command": "aaasp",
+      "args": ["mcp", "serve"],
+      "env": { "AAASP_API_KEY": "your_key_here" }
+    }
+  }
+}
+```
+
+Authentication reuses the same `AAASP_API_KEY` / `AAASP_BASE_URL` config as every
+other command — one tenant, one API key, same scoping rules as the JSON API.
 
 ---
 
