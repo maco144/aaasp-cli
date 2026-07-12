@@ -1,0 +1,55 @@
+version: 2
+
+project_name: aaasp
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: aaasp
+    main: ./cmd/aaasp
+    binary: aaasp
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - id: aaasp
+    name_template: "aaasp_{{ .Os }}_{{ .Arch }}"
+    format: binary
+
+checksum:
+  name_template: "checksums.txt"
+
+release:
+  github:
+    owner: maco144
+    name: aaasp-cli
+  name_template: "v{{.Version}}"
+  header: |
+    ## aaasp CLI v{{.Version}}
+
+    Install:
+    ```sh
+    curl -fsSL https://raw.githubusercontent.com/maco144/aaasp-cli/main/scripts/install.sh | sh
+    ```
+    Or `go install github.com/maco144/aaasp-cli/cmd/aaasp@v{{.Version}}`, or download a binary below.
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - Merge pull request
