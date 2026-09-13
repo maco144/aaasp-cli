@@ -3,6 +3,7 @@ package output
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -30,8 +31,11 @@ func Fatal(format string, args ...any) {
 
 func IsJSON() bool { return jsonMode }
 
-// Table prints a simple aligned key/value list
-func KV(pairs [][2]string) {
+// KV prints a simple aligned key/value list to stdout
+func KV(pairs [][2]string) { KVTo(os.Stdout, pairs) }
+
+// KVTo prints a simple aligned key/value list to w
+func KVTo(w io.Writer, pairs [][2]string) {
 	maxKey := 0
 	for _, p := range pairs {
 		if len(p[0]) > maxKey {
@@ -39,6 +43,6 @@ func KV(pairs [][2]string) {
 		}
 	}
 	for _, p := range pairs {
-		fmt.Printf("  %-*s  %s\n", maxKey, p[0], p[1])
+		fmt.Fprintf(w, "  %-*s  %s\n", maxKey, p[0], p[1])
 	}
 }

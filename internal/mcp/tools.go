@@ -58,8 +58,11 @@ func buildTools() []toolDef {
 		},
 		{
 			Tool: Tool{
-				Name:        "list_deployments",
-				Description: "List all agent deployments for the authenticated tenant.",
+				Name: "list_deployments",
+				Description: "List all agent deployments for the authenticated tenant. Each deployment " +
+					"has `runnable` (bool) and `readiness_error` (string or null). A deployment with " +
+					"runnable=false will fail every run; readiness_error says why (e.g. no LLM key for " +
+					"its provider) and what to fix. Check it before dispatching to a deployment.",
 				InputSchema: map[string]any{
 					"type":       "object",
 					"properties": map[string]any{},

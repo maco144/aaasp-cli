@@ -83,13 +83,7 @@ func credentialsAdd(client *api.Client) {
 		output.Fatal("failed to read key: %v", err)
 	}
 
-	body := map[string]string{
-		"provider":  provider,
-		"vault_key": string(keyBytes),
-	}
-	if label != "" {
-		body["label"] = label
-	}
+	body := credentialBody(provider, label, string(keyBytes))
 
 	var result map[string]any
 	if err := client.Post("/credentials", body, &result); err != nil {
@@ -97,6 +91,20 @@ func credentialsAdd(client *api.Client) {
 	}
 
 	fmt.Printf("Credential added (id: %s)\n", str(result["id"]))
+}
+
+// credentialBody builds the POST /v1/credentials payload. The API reads the key
+// from "encrypted_key" (the value is the plaintext key; the server encrypts it)
+// and requires a label, which defaults to the provider name.
+func credentialBody(provider, label, key string) map[string]string {
+	if label == "" {
+		label = provider
+	}
+	return map[string]string{
+		"provider":      provider,
+		"label":         label,
+		"encrypted_key": key,
+	}
 }
 
 func credentialsDelete(client *api.Client, id string) {

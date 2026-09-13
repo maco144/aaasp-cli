@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/maco144/aaasp-cli/internal/api"
 	"github.com/maco144/aaasp-cli/internal/output"
@@ -56,7 +58,11 @@ func deploymentCreate(client *api.Client, agentDefID string) {
 	output.KV([][2]string{
 		{"agent_def_id", str(result["agent_def_id"])},
 		{"status", str(result["status"])},
+		{"runnable", readyLabel(result)},
 	})
+	if reason := str(result["readiness_error"]); reason != "" {
+		fmt.Fprintf(os.Stderr, "\nwarning: this deployment cannot run yet: %s\n", reason)
+	}
 }
 
 func deploymentslist(client *api.Client) {
@@ -74,16 +80,46 @@ func deploymentslist(client *api.Client) {
 		fmt.Println("No deployments found.")
 		return
 	}
-	fmt.Printf("  %-36s  %-36s  %-10s  %s\n", "ID", "AGENT", "STATUS", "CREATED")
-	fmt.Printf("  %-36s  %-36s  %-10s  %s\n", "---", "-----", "------", "-------")
+	renderDeploymentList(os.Stdout, deps)
+}
+
+func renderDeploymentList(w io.Writer, deps []any) {
+	fmt.Fprintf(w, "  %-36s  %-36s  %-10s  %-5s  %s\n", "ID", "AGENT", "STATUS", "READY", "CREATED")
+	fmt.Fprintf(w, "  %-36s  %-36s  %-10s  %-5s  %s\n", "---", "-----", "------", "-----", "-------")
+
+	var blocked [][2]string
 	for _, d := range deps {
 		m, _ := d.(map[string]any)
-		fmt.Printf("  %-36s  %-36s  %-10s  %s\n",
+		fmt.Fprintf(w, "  %-36s  %-36s  %-10s  %-5s  %s\n",
 			str(m["id"]),
 			str(m["agent_def_id"]),
 			str(m["status"]),
+			readyLabel(m),
 			str(m["created_at"]),
 		)
+		if reason := str(m["readiness_error"]); reason != "" {
+			blocked = append(blocked, [2]string{str(m["id"]), reason})
+		}
+	}
+
+	if len(blocked) > 0 {
+		fmt.Fprintln(w, "\nNot runnable:")
+		for _, b := range blocked {
+			fmt.Fprintf(w, "  %s: %s\n", b[0], b[1])
+		}
+	}
+}
+
+// readyLabel renders the API's runnable field; "?" for servers that predate it.
+func readyLabel(m map[string]any) string {
+	switch v := m["runnable"].(type) {
+	case bool:
+		if v {
+			return "yes"
+		}
+		return "no"
+	default:
+		return "?"
 	}
 }
 
@@ -96,12 +132,22 @@ func deploymentShow(client *api.Client, id string) {
 		output.JSON(result)
 		return
 	}
-	output.KV([][2]string{
-		{"id", str(result["id"])},
-		{"agent", str(result["agent_def_id"])},
-		{"status", str(result["status"])},
-		{"schedule", str(result["schedule"])},
-	})
+	renderDeploymentDetail(os.Stdout, result)
+}
+
+func renderDeploymentDetail(w io.Writer, m map[string]any) {
+	pairs := [][2]string{
+		{"id", str(m["id"])},
+		{"agent", str(m["agent_def_id"])},
+		{"status", str(m["status"])},
+		{"credential", str(m["credential_id"])},
+		{"created", str(m["created_at"])},
+		{"runnable", readyLabel(m)},
+	}
+	if reason := str(m["readiness_error"]); reason != "" {
+		pairs = append(pairs, [2]string{"reason", reason})
+	}
+	output.KVTo(w, pairs)
 }
 
 func deploymentDelete(client *api.Client, id string) {

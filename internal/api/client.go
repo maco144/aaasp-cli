@@ -67,13 +67,19 @@ func (c *Client) do(method, path string, body any, out any) error {
 
 	if resp.StatusCode >= 400 {
 		var errBody struct {
-			Error  string `json:"error"`
-			Errors any    `json:"errors"`
+			Error   string `json:"error"`
+			Message string `json:"message"`
+			Errors  any    `json:"errors"`
 		}
 		_ = json.Unmarshal(respData, &errBody)
 		msg := errBody.Error
 		if msg == "" {
 			msg = string(respData)
+		}
+		// Some errors pair a machine code with a tenant-facing explanation
+		// (e.g. {"error":"not_runnable","message":"..."}); show both.
+		if errBody.Message != "" {
+			msg = msg + ": " + errBody.Message
 		}
 		return &APIError{Status: resp.StatusCode, Message: msg}
 	}

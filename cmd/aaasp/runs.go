@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"strings"
 
 	"github.com/maco144/aaasp-cli/internal/api"
@@ -99,7 +101,7 @@ func runsList(client *api.Client) {
 		fmt.Printf("  %-36s  %-12s  %s\n",
 			str(m["id"]),
 			str(m["status"]),
-			str(m["inserted_at"]),
+			str(m["created_at"]),
 		)
 	}
 }
@@ -113,12 +115,23 @@ func runShow(client *api.Client, id string) {
 		output.JSON(result)
 		return
 	}
-	output.KV([][2]string{
-		{"id", str(result["id"])},
-		{"status", str(result["status"])},
-		{"deployment", str(result["deployment_id"])},
-		{"created", str(result["inserted_at"])},
-	})
+	renderRunDetail(os.Stdout, result)
+}
+
+func renderRunDetail(w io.Writer, m map[string]any) {
+	pairs := [][2]string{
+		{"id", str(m["id"])},
+		{"status", str(m["status"])},
+		{"deployment", str(m["deployment_id"])},
+		{"created", str(m["created_at"])},
+	}
+	if e := str(m["error"]); e != "" {
+		pairs = append(pairs, [2]string{"error", e})
+	}
+	if r := str(m["result"]); r != "" {
+		pairs = append(pairs, [2]string{"result", r})
+	}
+	output.KVTo(w, pairs)
 }
 
 func runCancel(client *api.Client, id string) {
