@@ -11,9 +11,13 @@ build:
 install:
 	go install -ldflags="-s -w -X main.version=$(VERSION)" $(CMD)
 
-# Cuts a real release via goreleaser — requires GITHUB_TOKEN and a pushed tag.
+GORELEASER ?= $(shell command -v goreleaser 2>/dev/null || echo $(HOME)/go/bin/goreleaser)
+
+# Cuts a real release via goreleaser. Needs a pushed tag and a clean tree.
+# GITHUB_TOKEN falls back to the gh CLI's token. Verify afterwards by
+# downloading a published binary and running `--version`.
 release:
-	goreleaser release --clean
+	GITHUB_TOKEN=$${GITHUB_TOKEN:-$$(gh auth token)} $(GORELEASER) release --clean
 
 tidy:
 	go mod tidy
