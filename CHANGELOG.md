@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 (2026-09-13)
 
 - `deployments list` adds a READY column and lists why each non-runnable
   deployment can't run (from the API's `runnable` / `readiness_error`)
