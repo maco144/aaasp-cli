@@ -8,7 +8,10 @@ import (
 	"github.com/maco144/aaasp-cli/internal/output"
 )
 
-const version = "0.3.0"
+// Set at build time via -ldflags "-X main.version=..." (goreleaser, make build).
+// Must be a var: -X silently ignores constants, which is how v0.4.0 shipped
+// binaries reporting 0.3.0.
+var version = "dev"
 
 func main() {
 	args := os.Args[1:]

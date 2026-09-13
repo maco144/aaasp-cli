@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 (2026-09-13)
+
+- Fixed: `aaasp --version` printed a hard-coded `0.3.0`. `version` was a Go
+  `const`, which `-ldflags -X` cannot set, so the release version was never
+  injected. v0.4.0 binaries report `0.3.0`, but their code is 0.4.0
+
 ## 0.4.0 (2026-09-13)
 
 - `deployments list` adds a READY column and lists why each non-runnable
