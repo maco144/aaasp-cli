@@ -40,8 +40,9 @@ Commands:
   register                            Create a new account
   whoami                              Show current account info
 
-  deployments list                    List deployments
+  deployments list                    List deployments (READY column + why any can't run)
   deployments create <agent_def_id>   Create a deployment
+  deployments show <id>               Show a deployment, including runnable/reason
   deployments delete <id>             Delete a deployment
 
   runs list                                        List runs
@@ -78,7 +79,7 @@ the AAASP core loop as tools for any MCP client:
 |------|-------------|
 | `dispatch_run` | Submit a goal — AAASP classifies it and auto-routes to the best agent |
 | `get_run` | Check a run's status and result by ID |
-| `list_deployments` | List agent deployments for the authenticated tenant |
+| `list_deployments` | List agent deployments, each with `runnable` and `readiness_error` (why it can't run) |
 | `list_agents` | List agent definitions for the authenticated tenant |
 
 Example Claude Desktop / Claude Code config:
